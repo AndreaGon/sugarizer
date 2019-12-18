@@ -1,4 +1,4 @@
-define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar-web/graphics/presencepalette", "sugar-web/env",  "sugar-web/graphics/icon", "webL10n", "sugar-web/graphics/palette", "rot", "humane"], function (activity, TWEEN, rAF, directions, presencepalette, env, icon, webL10n, palette, ROT, humane) {
+define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar-web/graphics/presencepalette", "sugar-web/env",  "sugar-web/graphics/icon", "webL10n", "sugar-web/graphics/palette", "rot", "humane", "tutorial"], function (activity, TWEEN, rAF, directions, presencepalette, env, icon, webL10n, palette, ROT, humane, tutorial) {
 
     requirejs(['domReady!'], function (doc)   {
         activity.setup();
@@ -73,6 +73,11 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
 			coloredLogo = coloredLogo.replace("#FFFFFF", color.fill)
 			return "data:image/svg+xml;base64," + btoa(coloredLogo);
 		}
+		
+		//Run tutorial when help button is clicked
+  		document.getElementById("help-button").addEventListener('click', function(e) {
+  			tutorial.start();
+  		});
 
         var onNetworkDataReceived = function(msg) {
             if (presence.getUserInfo().networkId === msg.user.networkId) {
