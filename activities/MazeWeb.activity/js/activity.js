@@ -1,6 +1,6 @@
-define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar-web/graphics/presencepalette", "sugar-web/env",  "sugar-web/graphics/icon", "webL10n", "sugar-web/graphics/palette", "rot", "humane"], function (activity, TWEEN, rAF, directions, presencepalette, env, icon, webL10n, palette, ROT, humane) {
+define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar-web/graphics/presencepalette", "sugar-web/env",  "sugar-web/graphics/icon", "webL10n", "sugar-web/graphics/palette", "rot", "humane", "tutorial"], function (activity, TWEEN, rAF, directions, presencepalette, env, icon, webL10n, palette, ROT, humane, tutorial) {
 
-    requirejs(['domReady!'], function (doc) {
+    requirejs(['domReady!'], function (doc)   {
         activity.setup();
 
         var maze = {};
@@ -36,7 +36,36 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
                 });
             }
 
+            // Load from datastore
+            if (!environment.objectId) {
+                runLevel();
+            } else {
+                activity.getDatastoreObject().loadAsText(function(error, metadata, data) {
+                    if (error==null && data!=null) {
+                        data = JSON.parse(data);
+                        maze = data.maze;
+                        gameSize = data.gameSize;
+                        updateMazeSize();
+                        updateSprites();
+                        onLevelStart();
+                    }
+                });
+            }
         });
+
+        document.getElementById("fullscreen-button").addEventListener('click', function() {
+            document.getElementById("main-toolbar").style.opacity = 0;
+            document.getElementById("canvas").style.top = "0px";
+            document.getElementById("unfullscreen-button").style.visibility = "visible";
+            onWindowResize();
+        });
+
+		document.getElementById("unfullscreen-button").addEventListener('click', function() {
+			document.getElementById("main-toolbar").style.opacity = 1;
+			document.getElementById("canvas").style.top = "55px";
+			document.getElementById("unfullscreen-button").style.visibility = "hidden";
+			onWindowResize();
+		});
 
 		var generateXOLogoWithColor = function(color) {
 			var coloredLogo = xoLogo;
@@ -95,7 +124,7 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
 
         };
 
-		var soundType = /(iPad|iPhone|iPod)/g.test(navigator.userAgent) ? '.mp3' : '.ogg';
+		var soundType = '.mp3';
         var canvasWidth;
         var canvasHeight;
 
@@ -142,8 +171,11 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
             var toolbarElem = document.getElementById("main-toolbar");
 
             canvasWidth = window.innerWidth;
-            canvasHeight = window.innerHeight - toolbarElem.offsetHeight - 3;
-
+            if (document.getElementById("unfullscreen-button").style.visibility == "visible") {
+                canvasHeight = window.innerHeight - 3;
+            } else {
+                canvasHeight = window.innerHeight - toolbarElem.offsetHeight - 3;
+            }
             cellWidth = Math.floor(canvasWidth / maze.width);
             cellHeight = Math.floor(canvasHeight / maze.height);
 
@@ -609,6 +641,18 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
         }
         runLevel();
 
+        var restartButton = document.getElementById('restart-button');
+        restartButton.addEventListener('click', function(e) {
+            gameSize = 60;
+            runLevel();
+        });
+
+        // Launch tutorial
+        document.getElementById("help-button").addEventListener('click', function(e) {
+            tutorial.start();
+        });
+
+
         Player.prototype.isMoving = function () {
             return (this.animation !== undefined);
         };
@@ -879,6 +923,17 @@ define(["sugar-web/activity/activity","tween","rAF","activity/directions","sugar
                 network.onDataReceived(onNetworkDataReceived);
                 network.onSharedActivityUserChanged(onNetworkUserChanged);
             });
+        });
+
+        document.getElementById("stop-button").addEventListener('click', function (event) {
+            maze.visited = createMatrix(maze.width, maze.height);
+            var data = {
+                maze: maze,
+                gameSize: gameSize,
+            }
+            var jsonData = JSON.stringify(data);
+            activity.getDatastoreObject().setDataAsText(jsonData);
+            activity.getDatastoreObject().save();
         });
     });
 

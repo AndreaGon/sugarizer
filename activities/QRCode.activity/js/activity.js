@@ -1,6 +1,6 @@
 
 
-define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "webL10n"], function (activity, datastore, env, webL10n) {
+define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "webL10n", "tutorial"], function (activity, datastore, env, webL10n, tutorial) {
 
 	// Manipulate the DOM only when it is ready.
 	requirejs(['domReady!', 'humane'], function (doc, humane) {
@@ -17,7 +17,8 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 		});
 
 		// Compute size of QR Code
-		var headerSize = 55 + 40;
+		var toolbarSize = 55;
+		var headerSize = toolbarSize + 40;
 		var marginPercent = 20;
 		var qrSize = document.getElementById("canvas").parentNode.offsetHeight - headerSize;
 		qrSize -= (marginPercent*qrSize)/100;
@@ -38,18 +39,24 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 		var generateCode = function(text) {
 			qrCode.clear();
 			qrCode.makeCode(text);
+			addToHistory(text);
 			var text = userText.value.toLowerCase();
+			if (text.length > 0) {
+				document.getElementById("erasetext-button").style.visibility = "visible";
+			} else {
+				document.getElementById("erasetext-button").style.visibility = "hidden";
+			}
 			if (text.indexOf("http://") == 0 || text.indexOf("https://") == 0) {
 				document.getElementById("user-text").classList.add("text-url");
 			} else {
 				document.getElementById("user-text").classList.remove("text-url");
 			}
-			addToHistory(text);
 		}
 
 		// Process Resize events
-		window.addEventListener('resize', function() {
-			var windowSize = document.body.clientHeight - headerSize;
+
+		var resizeHandler = function() {
+			var windowSize = document.body.clientHeight - headerSize + (document.getElementById("unfullscreen-button").style.visibility == "visible"?toolbarSize:0);
 			var zoom = windowSize/((qrSize*(100+marginPercent))/100);
 			document.getElementById("qr-code").style.zoom = zoom;
 			var useragent = navigator.userAgent.toLowerCase();
@@ -64,12 +71,18 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 					document.getElementById("outdiv").style.MozTransformOrigin = "0 0";
 				}
 			}
-		});
+		}
+		window.addEventListener('resize', resizeHandler);
 
 		// Get settings
 		var userText = document.getElementById("user-text");
 		userText.addEventListener('keyup', function() {
 			var text = userText.value.toLowerCase();
+			if (text.length > 0) {
+				document.getElementById("erasetext-button").style.visibility = "visible";
+			} else {
+				document.getElementById("erasetext-button").style.visibility = "hidden";
+			}
 			if (text.indexOf("http://") == 0 || text.indexOf("https://") == 0) {
 				document.getElementById("user-text").classList.add("text-url");
 			} else {
@@ -79,8 +92,18 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 		userText.addEventListener('click', function() {
 			var text = userText.value.toLowerCase();
 			if (text.indexOf("http://") == 0 || text.indexOf("https://") == 0) {
-				window.open(userText.value);
+				if (isMobile) {
+					cordova.InAppBrowser.open(userText.value, '_system');
+				} else {
+					window.open(userText.value);
+				}
 			}
+		});
+		document.getElementById("erasetext-button").addEventListener('click', function() {
+			userText.value = "";
+			userText.focus();
+			document.getElementById("erasetext-button").style.visibility = "hidden";
+			document.getElementById("user-text").classList.remove("text-url");
 		});
 
 		// Handle text change
@@ -117,6 +140,11 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 			}, inputData);
 		});
 
+		// Launch tutorial
+		document.getElementById("help-button").addEventListener('click', function(e) {
+			tutorial.start();
+		});
+
 		// Full screen
 		document.getElementById("fullscreen-button").addEventListener('click', function() {
 			if (document.getElementById("photo-button").classList.contains('active')) {
@@ -126,12 +154,14 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 			document.getElementById("input-box").style.opacity = 0;
 			document.getElementById("canvas").style.top = "0px";
 			document.getElementById("unfullscreen-button").style.visibility = "visible";
+			resizeHandler();
 		});
 		document.getElementById("unfullscreen-button").addEventListener('click', function() {
 			document.getElementById("main-toolbar").style.opacity = 1;
 			document.getElementById("input-box").style.opacity = 1;
 			document.getElementById("canvas").style.top = "55px";
 			document.getElementById("unfullscreen-button").style.visibility = "hidden";
+			resizeHandler();
 		});
 
 		// Capture photo
@@ -157,6 +187,7 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 								userText.value = code;
 								generateCode(code);
 							}
+							QRScanner.cancelScan(function(status){});
 							document.getElementById("main-toolbar").style.opacity = 1;
 							document.getElementById("canvas").style.opacity = 1;
 							document.getElementById("close-button").style.visibility = "hidden";
@@ -210,8 +241,10 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 
 		// Add entry to history
 		function addToHistory(text) {
-			history.push(text);
-			updateHistory();
+			if(!history.includes(text)){
+				history.push(text);
+				updateHistory();
+			}
 		}
 
 		// Update dropdown with user history
@@ -223,7 +256,7 @@ define(["sugar-web/activity/activity","sugar-web/datastore", "sugar-web/env", "w
 			}
 			document.getElementById("qrtextdropdown").innerHTML = mhtml;
 		}
-		
+
 		// QR history dropdown change
 		document.getElementById("qrtextdropdown").addEventListener('change', function () {
 			document.getElementById("user-text").value = document.getElementById("qrtextdropdown").value;

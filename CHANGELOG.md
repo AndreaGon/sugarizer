@@ -4,6 +4,219 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Calligra activity
+- Falabracman activity
+- Tutorial step 9: integrate a tutorial
+- Add new Fonts for Write Activity
+- Add an option to choose board size of Game of Life activity #381
+- Allow to control speed generation in Game of Life activity #380
+- Add superscript and subscript features to Write activity
+- Support for no signup mode
+- Add dead cells in Game of life activity #379
+- Add a set time mode to the Clock activity #387
+- Add a synth keyboard mode in TamTam Micro activity #389
+- Add a home button in Grid Paint activity #546
+- Add a quit application button in Electron
+- Add an option to navigate back to Contents in Ebook Reader #651
+- Add a way to restart game in Abecedarium #680
+- Add a fullscreen button in Gears activity #411
+- Add a fullscreen button in Memorize activity #401
+- Add a fullscreen button in XO Editor activity #415
+- Add a fullscreen button in TamTam micro activity #409
+- Add a fullscreen button in Clock activity #412
+- Add a fullscreen button in Moon activity #413
+- Add a fullscreen button in BlockRain activity #416
+- Add a fullscreen button in ColorMyWorld activity #414
+- Add a fullscreen button in Abacus activity #402
+- Add a fullscreen button in the Maze activity #400
+- Add a fullscreen button in Constellation activity #417
+- Add a fullscreen button in Abecedarium activity #406
+- Add a fullscreen button in LastOneLose activity #418
+- Add a fullscreen button in Calculate activity #408
+- Add a fullscreen button in Physics activity #410
+- Add a fullscreen button in GameOfLife activity #407
+- Add a fullscreen button in the Flip activity #514
+- Add a fullscreen button to the TankOp activity #547
+- Add a fullscreen button in the Stopwatch activity #599
+- Add a fullscreen button in the FoodChain activity #598
+- Add a fullscreen button to the Video Viewer activity #600
+- Add a fullscreen button in the Exerciser activity #602
+- Add a fullscreen button in the GridPaint activity #601
+- Add a tutorial to the Memorize activity #427
+- Add a tutorial to the VideoViewer activity #435
+- Add a tutorial to the Fototoon activity #443
+- Add a tutorial to the Paint activity #425
+- Add a tutorial to the Moon activity #432
+- Add a tutorial to the SprintMath activity #444
+- Add a tutorial to the Record activity #433
+- Add a tutorial to the Constellation activity #446
+- Add a tutorial to the Reflection activity #440
+- Add a tutorial to the XOEditor activity #439
+- Add a tutorial to the LastOneLose activity #447
+- Add a tutorial to the Write activity #445
+- Add a tutorial to the Abacus activity #441
+- Add a tutorial to the MazeWeb activity #424
+- Add a tutorial to the TamTam Micro activity #426
+- Add a tutorial to the Clock activity #430
+- Add a tutorial to the Flip activity #442
+- Add a tutorial to the PhysicsJS activity #428
+- Add a tutorial on Game of Life activity #382
+- Add a tutorial to the Speak activity #431
+- Add a tutorial to the Calculate activity #429
+- Add a tutorial to the ColorMyWorld activity #438
+- Add a tutorial to the FoodChain activity #436
+- Add a tutorial to the GridPaint activity #437
+- Add a tutorial to the Abecedarium activity #434
+- Add a tutorial to the QR Code activity #595
+- Add a tutorial to the TankOp activity #597
+- Add a tutorial to the Chat activity #594
+- Add a tutorial to the Block Rain activity #593
+- Add a tutorial to the Stopwatch activity #596
+
+### Changed
+- Double size of Record images in WebApp and electron App
+- Add a message when disconnected by the server or by another device
+- Improve Gears Tutorial #396
+- Improve Exerciser UI to avoid accidental deletion #455
+- Changing server URL at login need one more click now
+- ColorMyWorld language is now linked to core language
+- Use a real input field for password
+- Remove the two steps popup opening
+- Automatically shift popup menu to the left when it will override the right border
+- Allow teachers to login
+- Reorder buddy menu icons
+- Click on buddy icon/name in buddy menu is now like clicking on settings item
+- Remove restart message on settings/about me and settings/about language
+- Increase link width in LabyrinthJS activity
+- Disable overscroll on iOS/Android
+- Click on activity icon/name in listview menu launch activity, reorder items
+- Use Sugarizer default language for FoodChain default language
+- Use Sugarizer default language for Abecedarium default language
+
+### Fixed
+- Activity palette not visible on Tank Operation activity #371
+- Record images don't fit the thumbnail size in iOS/Android
+- Long touch on Memory items don't work on Android
+- Jump in generation in Game of Life activity on Chrome #388
+- Long name hide text in Chat activity #383
+- Image selection error in Write activity after scrolling #390
+- Board is not drawn correctly in LastOneLost activity when open from the Journal #419
+- Clear icon in Game of Life activity is non standard #397
+- Image insertion don't work in shared mode in Paint activity #384
+- Close the presence palette when the activity is shared #398
+- Board size in Flip activity is not optimized #405
+- Make responsive the toolbar in Write activity #515
+- Make responsive the toolbar in Physics activity #516
+- Horizontal scrollbar appears in the Write activity #538
+- Handle window resize in TankOp activity during play #404
+- Resize function gives error in TankOp Activity #549
+- Can't see the previous result on small screens for Calculate activity #517
+- Fix the clean all button in the Fototoon activity #513
+- Disappearance of clock in set time mode in clock activity #581
+- Improve design of Text Palette in Fototoon activity #575
+- Fix Unit Test
+- Presence is initialized as unsecure by default instead of using location.protocol value
+- XO Editor don't work on touch screens #588
+- Font size of Title reduces in fototoon activity #563
+- Fix TXT file generation in Write activity
+- Fix TXT import file
+- Journal chooser sometimes load Abecedarium images from server instead of from local directory
+- RGB bars in ColorMyWorld activity overflows #605
+- Harsh Sound in TamTam Micro activity in keyboard mode on Firefox and Safari #564
+- Grid Paint Activity screen not working properly on Firefox #342
+- Gridpaint don't handle window resize #403
+- In Journal Popup in iOS/Safari, Choose item text is not centered
+- RGB bars in LabyrinthJS and Write activity overflows #620
+- Time laps in stopwatch activity should be reset when reset button is clicked #624
+- Unnecessary display of time lapse when stopwatch not started #638
+- Stop Watch Activity is not responsive and has text overflowing problem #604
+- Wrong text appears upon hovering on buttons in Blockrain activity #627
+- Sound don't restart in FoodChain activity #360
+- Video erase button hidden in Record Activity #655
+- Text not visible in search bar of Calligra Activity #661
+- Text overflows in Shared notes activity #333
+- Dialog box has no background in Markdown #671
+- Markdown link opens in frame which crashes the output #673
+- Responsiveness issue in Pomodoro Activity #675
+- Password Tutorial targets the wrong element #68
+- Tutorial error in Shared Notes Activity #693
+- TamTam Micro Activity Piano Mode Not working in Chrome in file:// #679
+- Bug While Resizing game screen after resizing setting screen in Falabracman activity #703
+
+### Removed
+- Remove .OGG sounds, now replaced by .MP3 only
+
+
+## [1.2.0] - 2019-09-26
+### Added
+- Write activity
+- Constellation activity
+- Pomodoro activity
+- QR Code for scanning server URL on iOS/Android
+- Update to official Scratch 3.3 release
+- Support for localization in Scratch
+- Improved Exerciser activity: multimedia support, new templates, results detail
+- Dynamically generate favicon and title
+- Architecture page and schemas
+- Tutorial step 7: use journal chooser dialog
+- Tutorial step 8: create your own palette
+- Use IndexedDB instead of localStorage for storing Journal items content
+- Support for TXT/DOC/ODT/PDF files in Journal
+- Support for MP3/MP4 files in Journal
+- Add export sound to Journal feature in Abecedarium activity
+- Add export video to Journal feature in VideoViewer activity
+- Click on a PDF in Journal now open a preview window
+- Add access to Abecedarium database (image/sound) from Journal Chooser popup
+- Allow move/resize of inserted image in Paint activity
+
+### Changed
+- Improve consistency about shared palette position in toolbar
+
+### Fixed
+- QRCode and Record no longer work on Chrome 71
+- Add a delete button in the new idea input field of Labyrinth activity #262
+- Increase size of items in StopWatch activity #261
+- Save Maze level in Journal #260
+- Bad localization for some countries name in Color My World activity #265
+- Integrate presence in Labyrinth activity #263
+- Improve Record activity to see picture in real time #266
+- Allow clicking on Abacus balls to move it #146
+- Memorize responsive seems broken on phones #106
+- Stopwatch Activity, lap Timings vanish after a few recordings #280
+- Turtle Blocks Activity hangs on Android App #185
+- Sugarizer OS hang when multiple click on an icon #338
+- Message overlaps with user name in Chat Activity #328
+- Jappy Activity print preview popup #326
+- Toolbar overlap issue in Speak Activity #324
+- Smileys not displayed properly in chat prototype activity #322
+- Cursor issue in calculator activity on Chrome #318
+- Duplicated text in QR Code Activity history #314
+- Audio bar not displaying in chrome when opening a audio file #312
+- Display language settings in 2 languages #292
+- Gear colours are reset on resume #336
+- Added Tool tips to Calculate Activity
+- Users should be able to send images in chat prototype #330
+- No erase button for recordings in Record activity #344
+- Order Journal filter by activity name
+- Snapcraft version lost context #346
+- Snapcraft version don't allow to import/export file into/from Journal #350
+- Update home image for TankOp activity
+- Grammatical Errors in the Documentation #347
+- Now support offline mode on Scratch for iOS
+- Camera doesn't work on Record/QRCode activities for Snapcraft version #351
+- Add a pause button to the Physics activity #354
+- Context is lost the second time in Abecedarium activity #359
+- Sound not play on Memorize activity in iOS
+- Record activity don't work in Safari #362
+- Error in console in Calculate activity when reopen an empty instance #358
+- Localize activity name in title
+- Activity palette icon has reversed colors
+- XOEditor activity generate multiple entries in the Journal #370
+- Clear icon in XOEditor activity is not consistent #372
+
+
 ## [1.1.0] - 2019-01-20
 ### Added
 - Desktop version for GNU Linux, MacOS and Windows using electron

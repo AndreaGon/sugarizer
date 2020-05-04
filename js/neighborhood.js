@@ -43,6 +43,7 @@ enyo.kind({
 		this.$.server.setColorizedColor(cacheData ? cacheData.colorvalue : xoPalette.colors[serverColor]);
 		this.users = [];
 		this.activities = [];
+		this.eeMode = false;
 		this.timer = window.setInterval(enyo.bind(this, "updateNetworkState"), constant.timerUpdateNetwork);
 		if (presence.isConnected() || window.sugarizerOS) {
 			this.updateNetworkState();
@@ -127,15 +128,30 @@ enyo.kind({
 
 	// Update
 	updateNetworkState: function() {
-		if (presence.isConnected()) {
+		var currentcolor = preferences.getColor();
+		if (presence.isConnected() && currentcolor.stroke == "#005FE4" && currentcolor.fill == "#FF2B34" && this.toolbar && this.toolbar.getSearchText() == "Sugarizer contributors") {
+			if (!this.eeMode) {
+				var list = new Sugar.EE({mode: 3}).contributors();
+				for (var i = 0 ; i < list.length ; i++) {
+					this.users.push(list[i]);
+				}
+				this.eeMode = true;
+				this.draw();
+				this.filterNetwork();
+			}
+		} else if (presence.isConnected()) {
 			this.$.owner.setShowing(true);
 			this.$.server.setShowing(true);
 			this.$.empty.setShowing(false);
 			this.$.message.setShowing(false);
 			this.$.settings.setShowing(false);
 			this.$.refresh.setShowing(false);
+			if (app.toolbar && app.toolbar.showServerWarning) {
+				app.toolbar.showServerWarning(false);
+			}
 			presence.listUsers(enyo.bind(this, "userListReceived"));
 			presence.listSharedActivities(enyo.bind(this, "sharedListReceived"));
+			this.eeMode = false;
 		}
 		else if (window.sugarizerOS) {
 			now = new Date().getTime();
@@ -160,12 +176,16 @@ enyo.kind({
 			}
 			presence.listUsers(enyo.bind(this, "userListReceived"));
 			presence.listSharedActivities(enyo.bind(this, "sharedListReceived"));
+			this.eeMode = false;
 		}
 		else {
 			this.$.owner.setShowing(false);
 			this.$.server.setShowing(false);
 			this.$.empty.setShowing(true);
 			this.$.message.setShowing(true);
+			if (app.toolbar && app.toolbar.showServerWarning) {
+				app.toolbar.showServerWarning(true);
+			}
 			if (preferences.isConnected()) {
 				this.$.message.setContent(l10n.get("UnableToConnect"));
 				this.$.refresh.setShowing(true);
@@ -173,6 +193,7 @@ enyo.kind({
 				this.$.message.setContent(l10n.get("ServerNotSet"));
 				this.$.settings.setShowing(true);
 			}
+			this.eeMode = false;
 		}
 	},
 
@@ -185,24 +206,10 @@ enyo.kind({
 			colorizedColor: null,
 			name: preferences.getName(),
 			title: null,
-			action: null
+			action: enyo.bind(this, "doSettings")
 		});
 		this.getPopup().setItems(null);
 		var items = [];
-		items.push({
-			icon: {directory: "icons", icon: "system-shutdown.svg"},
-			colorized: false,
-			name: l10n.get("Logoff"),
-			action: enyo.bind(this, "doLogoff"),
-			data: null
-		});
-		items.push({
-			icon: {directory: "icons", icon: "system-restart.svg"},
-			colorized: false,
-			name: l10n.get("Restart"),
-			action: enyo.bind(this, "doRestart"),
-			data: null
-		});
 		items.push({
 			icon: {directory: "icons", icon: "preferences-system.svg"},
 			colorized: false,
@@ -210,6 +217,22 @@ enyo.kind({
 			action: enyo.bind(this, "doSettings"),
 			data: null
 		});
+		items.push({
+			icon: {directory: "icons", icon: "system-shutdown.svg"},
+			colorized: false,
+			name: l10n.get("Logoff"),
+			action: enyo.bind(this, "doLogoff"),
+			data: null
+		});
+		if (enyo.platform.electron) {
+			items.push({
+				icon: {directory: "lib/sugar-web/graphics/icons/actions", icon: "activity-stop.svg"},
+				colorized: false,
+				name: l10n.get("Quit"),
+				action: enyo.bind(this, "doQuit"),
+				data: null
+			});
+		}
 		this.getPopup().setFooter(items);
 
 		// Show popup
@@ -230,18 +253,19 @@ enyo.kind({
 			this.otherview.show();
 		} else {
 			preferences.addUserInHistory();
-			util.cleanDatastore();
-			util.restartApp();
+			util.cleanDatastore(null, function() {
+				util.restartApp();
+			});
 		}
 	},
-	doRestart: function() {
-		stats.trace(constant.viewNames[app.getView()], 'click', 'restart');
-		util.restartApp();
+	doQuit: function() {
+		stats.trace(constant.viewNames[app.getView()], 'click', 'quit');
+		util.quitApp();
 	},
 	doSettings: function() {
 		stats.trace(constant.viewNames[app.getView()], 'click', 'my_settings');
 		this.getPopup().hidePopup();
-		this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogSettings"}, {owner:this});
+		this.otherview = this.$.otherview.createComponent({kind: "Sugar.DialogServer"}, {owner:this});
 		this.otherview.show();
 	},
 	doRefresh: function() {
@@ -772,7 +796,7 @@ enyo.kind({
 
 	// Filter network items
 	filterNetwork: function() {
-		var filter = this.toolbar ? this.toolbar.getSearchText().toLowerCase() : '';
+		var filter = (this.toolbar && !this.eeMode) ? this.toolbar.getSearchText().toLowerCase() : '';
 		enyo.forEach(this.$.network.getControls(), function(item) {
 			item.setDisabled(filter.length != 0 && item.data && item.data.name && item.data.name.toLowerCase().indexOf(filter) == -1);
 		});

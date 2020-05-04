@@ -71,7 +71,7 @@ define(function (require) {
 
 	// Test if connected to network
 	SugarPresence.prototype.isConnected = function() {
-		return (this.socket != null);
+		return (this.socket != null && this.socket.readyState == 1);
 	}
 
 	// Get user info
@@ -110,7 +110,7 @@ define(function (require) {
 			// Get server name
 			var server = location.hostname;
 			var port = 8039;
-			var secure = false;
+			var secure = (location.protocol == 'https:');
 			if (sugar_settings) {
 				var sugarSettings = JSON.parse(sugar_settings);
 				if (sugarSettings.server) {

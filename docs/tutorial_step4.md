@@ -41,9 +41,9 @@ Note that in the Journal you will see also your new Pawn activity. Let's see how
 
 ### Identify the context
 
-The "context" for our Pawn activity is the current number of pawns on the board. So an user could expect to retrieve the same number of pawns when he reopen the activity.
+The "context" for our Pawn activity is the current number of pawns on the board. So a user could expect to retrieve the same number of pawns when he reopens the activity.
 
-Let's try to implement it.
+Let's try to implement it. 
 
 First we will slightly refactor (i.e. improve) our `activity/activity.js` file. Here is the current implementation:
 
@@ -86,8 +86,8 @@ The array `pawns` contain all pawns. It's the context for our activity.
 
 ### Store context in the datastore
 
-To store the context, we have to handle the **datastore**. The datastore is the place where Sugar store the Journal. During the activity setup, Sugar-Web automatically initialize the datastore for the activity. The  `activity.getDatastoreObject()` method allow you to retrieve the datastore object allocated for the current activity.
-The `setDataAsText` method on this object is a way store a text string inside this object to retrieve it later.
+To store the context, we have to handle the **datastore**. The datastore is the place where Sugar store the Journal. During the activity setup, Sugar-Web automatically initializes the datastore for the activity. The  `activity.getDatastoreObject()` method allows you to retrieve the datastore object allocated for the current activity.
+The `setDataAsText` method on this object is a way to store a text string inside this object to retrieve it later.
 The `save` method store the object when it has been updated.
 
 So below is the source code to store the context in the datastore.
@@ -103,10 +103,11 @@ Then save the updated object.
 		if (error === null) {
 			console.log("write done.");
 		} else {
-			console.log("write failed.");			}
+			console.log("write failed.");
+		}
 	});
 
-This whole code should be call at the end of the activity. To do that we have to catch the click on the Stop button of the activity. So here is the complete source code we will add in the `activity/activity.js` file, just below the `add-button` event listener:
+This whole code should be called at the end of the activity. To do that we have to catch the click on the Stop button of the activity. So here is the complete source code we will add in the `activity/activity.js` file, just below the `add-button` event listener:
 
 	// Save in Journal on Stop
 	document.getElementById("stop-button").addEventListener('click', function (event) {
@@ -122,17 +123,17 @@ This whole code should be call at the end of the activity. To do that we have to
 		});
 	});
 
-It's the first step: the board is now safely save in the datastore.
+It's the first step: the board is now safely saved in the datastore.
 
-Let's now how we could retrieve it.
+Let's know how we could retrieve it.
 
 
 ### Detect the need to load the context
 
-Our Pawn activity works well when it's called from the **Start new** menu, i.e. with a new instance. Because in that case we don't have to reload the context.
+Our Pawn activity works well when it's called from the **Start new** menu, i.e. with a new instance. Because in that case, we don't have to reload the context.
 So the first question to ask is: how to detect that we need to load the context?
 
-Once again, the Sugar-Web environment could help us. When an activity is launched from an existing context, environment contains an `objectId` property with the identifier for the datastore object. When an activity is launch with a new instance, this property is null.
+Once again, the Sugar-Web environment could help us. When an activity is launched from an existing context, the environment contains an `objectId` property with the identifier for the datastore object. When an activity is launch with a new instance, this property is null.
 
 So we will update our request on environment in `activity/activity.js` to test this variable:
 
@@ -162,7 +163,7 @@ Of course, the context is not loaded for the moment in the activity but at least
 
 ### Load context from the datastore
 
-When our activity is launched with a new instance - the first branch from the previous `if` instruction, there is nothing to do. In that case, the `pawns` will be initialize with an empty array as today.
+When our activity is launched with a new instance - the first branch from the previous `if` instruction, there is nothing to do. In that case, the `pawns` will be initialized with an empty array as today.
 
 When our activity is launched with an existing instance - the `else` branch, we have to load the context to init our `pawns` array.
 
@@ -195,13 +196,13 @@ Launch the Pawn activity from the **Start new** menu. Here is the result:
 
 ![](images/tutorial_step4_9.png)
 
-The activity display a blank board as expected.
+The activity displays a blank board as expected.
 
-Click few times on the Plus button to add some pawns and stop the activity. Now re-open the activity by clicking on the Pawn icon on the Home view. Here is the result:
+Click a few times on the Plus button to add some pawns and stop the activity. Now re-open the activity by clicking on the Pawn icon on the Home view. Here is the result:
 
 ![](images/tutorial_step4_10.png)
 
-Yes! It's what we expected too: the activity is reopens with the right number of pawns.
+Yes! It's what we expected too: the activity reopens with the right number of pawns.
 
 The Journal is now fully supported by the Pawn activity.
 

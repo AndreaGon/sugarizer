@@ -3,7 +3,7 @@
 // Constants
 var constant = {};
 
-constant.sugarizerVersion = "1.1.0";
+constant.sugarizerVersion = "1.3.0";
 
 constant.sizeOwner = 100;
 constant.sizeJournal = 40;
@@ -43,6 +43,8 @@ constant.timerUpdateNetwork = 1000;
 constant.timerBeforeTutorial = 500;
 constant.webAppType = 0; // thinClientType
 constant.appType = 1;  // clientType
+constant.noServerMode = false;
+constant.noSignupMode = false;
 
 constant.staticInitActivitiesURL = "activities.json";
 constant.http = "http://";

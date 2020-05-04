@@ -315,7 +315,6 @@ enyo.kind({
 			{name: "cancelbutton", kind: "Button", classes: "toolbutton module-cancel-button", ontap: "cancel"},
 			{name: "okbutton", kind: "Button", classes: "toolbutton module-ok-button", ontap: "ok"}
 		]},
-		{name: "warningbox", kind: "Sugar.DialogSettingsWarningBox", showing: false, onCancel: "cancel", onRestart: "restart"},
 		{name: "content", components: [
 			{name: "message", content: "xxx", classes: "aboutme-message"},
 			{classes: "aboutme-icons", components: [
@@ -390,10 +389,7 @@ enyo.kind({
 			this.owner.show();
 			return;
 		}
-		this.$.warningbox.setShowing(true);
-		this.$.okbutton.setDisabled(true);
-		this.$.cancelbutton.setDisabled(true);
-		this.$.name.addRemoveClass('aboutme-name-validate', true);
+		this.restart();
 	},
 
 	setcolor: function(icon) {
@@ -403,11 +399,9 @@ enyo.kind({
 		}
 		this.currentcolor = newcolor;
 		this.render();
-		this.$.restartmessage.setShowing(true);
 	},
 
 	namechanged: function() {
-		this.$.restartmessage.setShowing(true);
 		this.currentname = this.$.name.getValue().trim();
 	},
 
@@ -420,10 +414,9 @@ enyo.kind({
 		preferences.saveToServer(myserver, function() {
 			util.restartApp();
 		}, function(error, code) {
-			that.$.warningbox.setShowing(false);
-			that.$.okbutton.setDisabled(false);
-			that.$.cancelbutton.setDisabled(false);
+			that.$.restartmessage.setShowing(true);
 			that.currentname = preferences.getName();
+			preferences.setName(that.initname);
 			if (code == 22) {
 				that.$.restartmessage.setContent(l10n.get("UserAlreadyExist"));
 			} else {
@@ -466,7 +459,7 @@ enyo.kind({
 		this.$.text.setContent(l10n.get("MySecurity"));
 		this.$.message.setContent(l10n.get("SecurityMessage"));
 		this.$.next.setText(l10n.get("Next"));
-		this.$.password.startInputListening();
+		this.$.password.giveFocus();
 		if (l10n.language.direction == "rtl") {
 			this.$.text.addClass("rtl-10");
 			this.$.message.addClass("rtl-10");
@@ -483,13 +476,11 @@ enyo.kind({
 
 	// Event handling
 	cancel: function() {
-		this.$.password.stopInputListening();
 		this.hide();
 		this.owner.show();
 	},
 
 	ok: function() {
-		this.$.password.stopInputListening();
 		this.hide();
 		this.owner.show();
 	},
@@ -541,6 +532,7 @@ enyo.kind({
 				function(response, error) {
 					that.$.warningmessage.setContent(l10n.get("ServerError", {code: error}));
 					that.$.warningmessage.setShowing(true);
+					that.$.password.giveFocus();
 					that.$.spinner.setShowing(false);
 				}
 			);
@@ -565,11 +557,9 @@ enyo.kind({
 			{name: "cancelbutton", kind: "Button", classes: "toolbutton module-cancel-button", ontap: "cancel"},
 			{name: "okbutton", kind: "Button", classes: "toolbutton module-ok-button", ontap: "ok"}
 		]},
-		{name: "warningbox", kind: "Sugar.DialogSettingsWarningBox", showing: false, onCancel: "cancel", onRestart: "restart"},
 		{name: "content", components: [
 			{name: "message", content: "xxx", classes: "language-message"},
-			{name: "languageselect", kind: "Sugar.SelectBox", classes: "language-select", onIndexChanged: "languageChanged"},
-			{name: "restartmessage", content: "xxx", classes: "language-restart", showing: false}
+			{name: "languageselect", kind: "Sugar.SelectBox", classes: "language-select", onIndexChanged: "languageChanged"}
 		]}
 	],
 
@@ -580,16 +570,16 @@ enyo.kind({
 		this.$.message.setContent(l10n.get("ChooseLanguage"));
 		this.initlanguage = this.currentlanguage = preferences.getLanguage();
 		this.languageset = [
-			{code: "en", icon: null, name: l10n.get("English")},
-			{code: "es", icon: null, name: l10n.get("Spanish")},
-			{code: "fr", icon: null, name: l10n.get("French")},
-			{code: "de", icon: null, name: l10n.get("German")},
-			{code: "pt", icon: null, name: l10n.get("Portuguese")},
-			{code: "ar", icon: null, name: l10n.get("Arabic")},
-			{code: "ja", icon: null, name: l10n.get("Japanese")},
-			{code: "pl", icon: null, name: l10n.get("Polish")},
-			{code: "ibo", icon: null, name: l10n.get("Igbo")},
-			{code: "yor", icon: null, name: l10n.get("Yoruba")}
+			{code: "en", icon: null, name: "English (" + l10n.get("English") +")"},
+			{code: "es", icon: null, name: "Español (" + l10n.get("Spanish") +")"},
+			{code: "fr", icon: null, name: "Français (" + l10n.get("French") +")"},
+			{code: "de", icon: null, name: "Deutsch (" + l10n.get("German") +")"},
+			{code: "pt", icon: null, name: "Português (" + l10n.get("Portuguese") +")"},
+			{code: "ar", icon: null, name: "عربي (" + l10n.get("Arabic") +")"},
+			{code: "ja", icon: null, name: "日本語 (" + l10n.get("Japanese") +")"},
+			{code: "pl", icon: null, name: "Polski (" + l10n.get("Polish") +")"},
+			{code: "ibo", icon: null, name: "Igbo (" + l10n.get("Igbo") +")"},
+			{code: "yor", icon: null, name: "Yoruba (" + l10n.get("Yoruba") +")"}
 		];
 		this.$.languageselect.setItems(this.languageset);
 		for (var i = 0 ; i < this.languageset.length ; i++) {
@@ -598,11 +588,9 @@ enyo.kind({
 				break;
 			}
 		}
-		this.$.restartmessage.setContent(l10n.get("ChangesRequireRestart"));
 		if (l10n.language.direction == "rtl") {
 			this.$.text.addClass("rtl-10");
 			this.$.message.addClass("rtl-10");
-			this.$.restartmessage.addClass("rtl-10");
 		}
 	},
 
@@ -626,13 +614,10 @@ enyo.kind({
 			this.owner.show();
 			return;
 		}
-		this.$.warningbox.setShowing(true);
-		this.$.okbutton.setDisabled(true);
-		this.$.cancelbutton.setDisabled(true);
+		this.restart();
 	},
 
 	languageChanged: function() {
-		this.$.restartmessage.setShowing(true);
 		this.currentlanguage = this.languageset[this.$.languageselect.getSelected()].code;
 	},
 
@@ -690,7 +675,8 @@ enyo.kind({
 			{name: "reinittext", showing: false, content: "xxx", classes: "computer-reinit"},
 			{classes: "computer-line"},
 			{name: "copyright", content: "xxx", classes: "computer-copyright"},
-			{content: "© 2013-2019 Lionel Laské, Sugar Labs Inc and Contributors", classes: "computer-contributor"},
+			{content: "© 2013-2020 Lionel Laské, Sugar Labs Inc and&nbsp;", allowHtml: true, classes: "computer-contributor"},
+			{content: "contributors", classes: "computer-contributor-link", allowHtml: true, ontap: "viewContributors"},
 			{name: "license", content: "xxx", classes: "computer-licence"},
 			{name: "licenseplus", content: "xxx", classes: "computer-licence"},
 			{name: "warningmessage", showing: false, content: "xxx", classes: "computer-warningmessage", showing: false}
@@ -722,7 +708,7 @@ enyo.kind({
 		this.$.useragent_value.setContent(navigator.userAgent);
 		var that = this;
 		util.computeDatastoreSize(function(size) {
-			that.$.storage_value.setContent(l10n.get("StorageSize", {used: size.used, percent: (100*size.used/size.total).toFixed()}));
+			that.$.storage_value.setContent(l10n.get("StorageSize", {used: size.bytes, formatted: size.formatted}));
 		});
 
 		if (l10n.language.direction == "rtl") {
@@ -763,12 +749,17 @@ enyo.kind({
 	},
 
 	reinit: function() {
-		util.cleanDatastore(true);
-		util.restartApp();
+		util.cleanDatastore(true, function() {
+			util.restartApp();
+		});
 	},
 
 	switchInit: function() {
 		this.$.warningmessage.setShowing(this.$.reinitcheck.getNodeProperty("checked"));
+	},
+
+	viewContributors: function() {
+		util.openAsUrl("https://github.com/llaske/sugarizer/blob/dev/docs/credits.md");
 	},
 
 	version: function() {
@@ -806,7 +797,8 @@ enyo.kind({
 			{name: "textconnected", content: "xxx", classes: "aboutserver-message"},
 			{components:[
 				{name: "textservername", content: "xxx", classes: "aboutserver-serverlabel"},
-				{name: "servername", kind: "Input", classes: "aboutserver-servername", onkeydown: "enterclick"}
+				{name: "servername", kind: "Input", classes: "aboutserver-servername", onkeydown: "enterclick"},
+				{name: "qrbutton", kind: "Sugar.Icon", size: constant.sizeEmpty, icon: {directory: "icons", icon: "qrcode.svg"}, ontap: "scanQR", classes: "aboutserver-qr", showing: false}
 			]},
 			{name: "serversettingsname", classes: "aboutserver-settingsname"},
 			{name: "serversettingsvalue", classes: "aboutserver-settingsvalue"},
@@ -877,7 +869,14 @@ enyo.kind({
 			this.$.servername.setDisabled(true);
 			this.$.username.setDisabled(true);
 		}
-		this.owner.centerDialog(this);
+		this.centerDialog(this);
+	},
+
+	centerDialog: function(dialog) {
+		var margin = util.computeMargin({width: 800, height: 500}, {width: 0.95, height: 0.95});
+		dialog.applyStyle("margin-left", margin.left+"px");
+		dialog.applyStyle("margin-top", (margin.top-55)+"px");
+		return margin;
 	},
 
 	displayStep: function() {
@@ -889,18 +888,21 @@ enyo.kind({
 			vservername = false,
 			vserversettingsvalue = false,
 			vserverdescriptionvalue = false,
+			vserverqr = false,
 			vtextusername = false,
 			vusername = false,
 			vnext = false,
 			vpasswordmessage = false,
 			vpassword = false;
 		if (this.step == 0) {
+			this.$.passwordmessage.setContent(l10n.get("PleaseConnectMessage"));
+			vpasswordmessage = true;
 		} else if (this.step == 1) {
 			this.$.servername.setValue(constant.defaultServer);
 			vtextservername = vservername = vnext = true;
+			vserverqr = (enyo.platform.ios || enyo.platform.android || enyo.platform.androidChrome);
 		} else if (this.step == 2) {
 			vpasswordmessage = vpassword = vnext = true;
-			this.$.password.startInputListening();
 			if (preferences.getToken() && preferences.getToken().expired) {
 				this.$.passwordmessage.setContent(l10n.get("SecurityMessageExpired", {min: util.getMinPasswordSize()}));
 			} else {
@@ -919,6 +921,7 @@ enyo.kind({
 		this.$.serverdescription.setShowing(vserverdescription);
 		this.$.textservername.setShowing(vtextservername);
 		this.$.servername.setShowing(vservername);
+		this.$.qrbutton.setShowing(vserverqr);
 		this.$.serversettingsvalue.setShowing(vserversettingsvalue);
 		this.$.serverdescriptionvalue.setShowing(vserverdescriptionvalue);
 		this.$.textusername.setShowing(vtextusername);
@@ -926,6 +929,9 @@ enyo.kind({
 		this.$.next.setShowing(vnext);
 		this.$.passwordmessage.setShowing(vpasswordmessage);
 		this.$.password.setShowing(vpassword);
+		if (vpassword) {
+			this.$.password.giveFocus();
+		}
 	},
 
 	// Event handling
@@ -935,7 +941,6 @@ enyo.kind({
 		}
 		this.hide();
 		this.owner.show();
-		this.$.password.stopInputListening();
 	},
 
 	ok: function() {
@@ -947,7 +952,6 @@ enyo.kind({
 		this.$.warningbox.setShowing(true);
 		this.$.okbutton.setDisabled(true);
 		this.$.cancelbutton.setDisabled(true);
-		this.$.password.stopInputListening();
 	},
 
 	switchConnection: function() {
@@ -1074,6 +1078,24 @@ enyo.kind({
 		util.restartApp();
 	},
 
+	// Handle QR Code scanner
+	scanQR: function() {
+		var that = this;
+		var toolbar = document.getElementById("toolbar");
+		this.hide();
+		toolbar.style.visibility = 'hidden';
+		util.scanQRCode(function(code) {
+			toolbar.style.visibility = 'visible';
+			that.show();
+			that.$.servername.setValue(code);
+		}, function() {
+			toolbar.style.visibility = 'visible';
+			that.show();
+			that.$.servername.focus();
+			that.$.servername.hasNode().select()
+		});
+	},
+
 	// Utility
 	hasChanged: function() {
 		var currentconnected = this.$.connected.getNodeProperty("checked");
@@ -1106,7 +1128,6 @@ enyo.kind({
 			{name: "cancelbutton", kind: "Button", classes: "toolbutton module-cancel-button", ontap: "cancel"},
 			{name: "okbutton", kind: "Button", classes: "toolbutton module-ok-button", ontap: "ok"}
 		]},
-		{name: "warningbox", kind: "Sugar.DialogSettingsWarningBox", showing: false, onCancel: "cancel", onRestart: "restart"},
 		{name: "content", components: [
 			{name: "stats", kind: "Input", type: "checkbox", classes: "toggle privacy-statscheckbox"},
 			{name: "textstats", content: "xxx", classes: "privacy-statsmessage"},
@@ -1152,9 +1173,7 @@ enyo.kind({
 			this.owner.show();
 			return;
 		}
-		this.$.warningbox.setShowing(true);
-		this.$.okbutton.setDisabled(true);
-		this.$.cancelbutton.setDisabled(true);
+		this.restart();
 	},
 
 	restart: function() {
@@ -1372,8 +1391,9 @@ enyo.kind({
 	ok: function() {
 		this.hide();
 		preferences.addUserInHistory();
-		util.cleanDatastore();
-		util.restartApp();
+		util.cleanDatastore(null, function() {
+			util.restartApp();
+		});
 	}
 });
 

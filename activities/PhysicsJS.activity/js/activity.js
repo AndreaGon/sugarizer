@@ -1,4 +1,4 @@
-define(["sugar-web/activity/activity"], function (activity) {
+define(["sugar-web/activity/activity","tutorial","webL10n","sugar-web/env"], function (activity,tutorial,webL10n,env) {
 
 	// Manipulate the DOM only when it is ready.
 	requirejs(['domReady!'], function (doc) {
@@ -6,11 +6,21 @@ define(["sugar-web/activity/activity"], function (activity) {
 		// Initialize the activity
 		activity.setup();
 
+		env.getEnvironment(function(err, environment) {
+			currentenv = environment;
+		
+			// Set current language to Sugarizer
+			var defaultLanguage = (typeof chrome != 'undefined' && chrome.app && chrome.app.runtime) ? chrome.i18n.getUILanguage() : navigator.language;
+			var language = environment.user ? environment.user.language : defaultLanguage;
+			webL10n.language.code = language;
+		});
+
 		// Initialize cordova
 		var useragent = navigator.userAgent.toLowerCase();
 		var sensorButton = document.getElementById("sensor-button");
 		var gravityButton = document.getElementById("gravity-button");
 		var appleButton = document.getElementById("apple-button");
+		var runButton = document.getElementById("run-button");
 		var readyToWatch = false;
 		var sensorMode = true;
 		var newtonMode = false;
@@ -34,6 +44,7 @@ define(["sugar-web/activity/activity"], function (activity) {
 		var init = false;
 		var gravityMode = 0;
 		var currentType = 0;
+		var physicsActive = true;
 		Physics({ timestep: 6 }, function (world) {
 
 			// bounds of the window
@@ -118,10 +129,35 @@ define(["sugar-web/activity/activity"], function (activity) {
 				setGravity((gravityMode + 1)%8);
 			}, true);
 
+			runButton.addEventListener('click', function () {
+				togglePause();
+			}, true);
+
 			document.getElementById("clear-button").addEventListener('click', function () {
 				currentType = -1;
 				switchToType(currentType);
 			}, true);
+
+			// Launch tutorial
+			document.getElementById("help-button").addEventListener('click', function(e) {
+				tutorial.start();
+			});
+
+			document.getElementById("fullscreen-button").addEventListener('click', function() {
+				document.getElementById("main-toolbar").style.opacity = 0;
+				document.getElementById("unfullscreen-button").style.visibility = "visible";
+				toolbarHeight = 0;
+				document.dispatchEvent(new Event('resize'));
+				event.preventDefault();
+			});
+
+			document.getElementById("unfullscreen-button").addEventListener('click', function() {
+				document.getElementById("main-toolbar").style.opacity = 1;
+				document.getElementById("unfullscreen-button").style.visibility = "hidden";
+				toolbarHeight = 55;
+				document.dispatchEvent(new Event('resize'));
+				event.preventDefault();
+			});
 
 			// Handle acceleration and gravity mode
 			sensorButton.addEventListener('click', function () {
@@ -383,6 +419,34 @@ define(["sugar-web/activity/activity"], function (activity) {
 				return Physics.body(savedObject.type, newOptions);
 			}
 
+			function setBodiesTreatmentStatic() {
+				var bodies = world.getBodies();
+				bodies.forEach(function(item, index, array) {
+					item.treatment = 'static';
+				});
+			}
+
+			function setBodiesTreatmentDynamic() {
+				var bodies = world.getBodies();
+				bodies.forEach(function(item, index, array) {
+					item.treatment = 'dynamic';
+				});
+			}
+
+			function togglePause() {
+			    if (physicsActive) {
+					document.getElementById("run-button").classList.remove('running');
+					document.getElementById("run-button").setAttribute('title', 'Play');
+					setBodiesTreatmentStatic();
+				} else {
+					document.getElementById("run-button").classList.add('running');
+					document.getElementById("run-button").setAttribute('title', 'Pause');
+					Physics.util.ticker.start();
+					setBodiesTreatmentDynamic();
+				}
+				physicsActive = !physicsActive;
+			}
+
 			// Change gravity value
 			function setGravity(value) {
 				if (gravityMode == value) return;
@@ -427,7 +491,7 @@ define(["sugar-web/activity/activity"], function (activity) {
 			world.on({
 				'interact:poke': function( pos ){
 					// create body at a static place
-					if (currentType != -1 && pos.y > toolbarHeight) {
+					if (currentType != -1 && pos.y > 55) {
 						createdBody = dropInBody(currentType, pos);
 						createdStart = pos;
 					}
@@ -460,11 +524,13 @@ define(["sugar-web/activity/activity"], function (activity) {
 					}
 				}
 				,'interact:release': function( pos ){
-					if (createdBody != null) {
-						createdBody.treatment = "dynamic";
-						createdBody = null;
+					if (physicsActive) {
+						if (createdBody != null) {
+							createdBody.treatment = "dynamic";
+						}
+						world.wakeUpAll();
 					}
-					world.wakeUpAll();
+					createdBody = null;
 				}
 				,'interact:grab': function ( data ) {
 					if (currentType == -1) {

@@ -15,10 +15,11 @@ module.exports = function(grunt) {
 					'activities/Abecedarium.activity/**/*.js',
 					'activities/Blockrain.activity/**/*.js',
 					'activities/Calculate.activity/**/*.js',
+					'activities/Calligra.activity/lib/*.js', // TODO: js/vue.js don't work
 					'activities/ChatPrototype.activity/**/*.js',
 					'activities/Clock.activity/**/*.js',
 					'activities/ColorMyWorld.activity/**/*.js',
-					'activities/Cordova.activity/**/*.js',
+					'activities/Constellation.activity/**/*.js',
 					'activities/Etoys.activity/**/*.js',
 					'activities/EbookReader.activity/lib/*.js', // TODO: js/vue.js don't work
 					'activities/Flip.activity/**/*.js',
@@ -38,6 +39,7 @@ module.exports = function(grunt) {
 					'activities/Moon.activity/**/*.js',
 					'activities/Paint.activity/**/*.js',
 					'activities/PhysicsJS.activity/**/*.js',
+					'activities/Pomodoro.activity/**/*.js',
 					'activities/QRCode.activity/**/*.js',
 					'activities/Record.activity/lib/*.js',  // TODO: js/recordrtc.js don't work
 					'activities/Reflection.activity/**/*.js',
@@ -49,7 +51,7 @@ module.exports = function(grunt) {
 					'activities/TankOp.activity/**/*.js',
 					'activities/TurtleBlocksJS.activity/**/*.js',
 					'activities/VideoViewer.activity/**/*.js',
-					'activities/WelcomeWeb.activity/**/*.js',
+					'activities/Write.activity/js/*.js',  // TODO: lib/quill is in ES6
 					'activities/XOEditor.activity/**/*.js'
 				],
 				dest: 'build/'
